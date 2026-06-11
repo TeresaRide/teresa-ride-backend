@@ -3,7 +3,7 @@ import { Vehicle } from '../models/vehicle.model';
 
 export const getAllVehicles = (): Promise<Vehicle[]> => {
     return new Promise((resolve, reject) => {
-        db.query('SELECT * FROM Vehicle', (err, results) => {
+        db.query('SELECT * FROM vehicle', (err, results) => {
             if (err) reject(err);
             else resolve(results as Vehicle[]);
         });
@@ -12,7 +12,7 @@ export const getAllVehicles = (): Promise<Vehicle[]> => {
 
 export const getVehicleById = (id: string): Promise<Vehicle> => {
     return new Promise((resolve, reject) => {
-        db.query('SELECT * FROM Vehicle WHERE license_plate = ?', [id], (err, results) => {
+        db.query('SELECT * FROM vehicle WHERE license_plate = ?', [id], (err, results) => {
             if (err) reject(err);
             else {
                 const vehicles = results as Vehicle[];
@@ -26,7 +26,7 @@ export const getVehicleById = (id: string): Promise<Vehicle> => {
 export const createVehicle = (vehicle: Vehicle): Promise<Vehicle> => {
     return new Promise((resolve, reject) => {
         const sql = `
-          INSERT INTO Vehicle
+          INSERT INTO vehicle
             (license_plate, brand, model, capacity, image, is_active, model_year, description, price_per_day)
           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
         `;
@@ -64,7 +64,7 @@ export const updateVehicle = (id: string, data: Partial<Vehicle>): Promise<Vehic
 
         if (fields.length === 0) return reject(new Error('No fields to update'));
 
-        const sql = `UPDATE Vehicle SET ${fields.join(', ')} WHERE license_plate = ?`;
+        const sql = `UPDATE vehicle SET ${fields.join(', ')} WHERE license_plate = ?`;
         values.push(id);
 
         db.query(sql, values, (err, result) => {
@@ -76,7 +76,7 @@ export const updateVehicle = (id: string, data: Partial<Vehicle>): Promise<Vehic
 
 export const deleteVehicle = (id: string): Promise<void> => {
     return new Promise((resolve, reject) => {
-        db.query('DELETE FROM Vehicle WHERE license_plate = ?', [id], (err, result) => {
+        db.query('DELETE FROM vehicle WHERE license_plate = ?', [id], (err, result) => {
             if (err) reject(err);
             else if ((result as any).affectedRows === 0) reject(new Error('Vehicle not found'));
             else resolve();

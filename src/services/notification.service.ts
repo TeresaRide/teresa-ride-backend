@@ -12,7 +12,7 @@ const transporter = nodemailer.createTransport({
 
 export const getAllNotifications = (): Promise<Notification[]> => {
     return new Promise((resolve, reject) => {
-        db.query('SELECT * FROM Notification', (err, results) => {
+        db.query('SELECT * FROM notification', (err, results) => {
             if (err) return reject(err);
             if (!results || !Array.isArray(results) || results.length === 0) {
                 return reject(new Error('Notification not found'));
@@ -24,7 +24,7 @@ export const getAllNotifications = (): Promise<Notification[]> => {
 
 export const getNotificationById = (id: number): Promise<Notification> => {
     return new Promise((resolve, reject) => {
-        db.query('SELECT * FROM Notification WHERE id_notification = ?', [id], (err, results) => {
+        db.query('SELECT * FROM notification WHERE id_notification = ?', [id], (err, results) => {
             if (err) reject(err);
             const notifications = results as Notification[];
             if (notifications.length === 0) reject(new Error('Notification not found'));
@@ -35,7 +35,7 @@ export const getNotificationById = (id: number): Promise<Notification> => {
 
 export const createNotification = async (notification: Omit<Notification, 'id_notification'>): Promise<Notification> => {
     return new Promise((resolve, reject) => {
-        db.query('INSERT INTO Notification SET ?', notification, (err, result) => {
+        db.query('INSERT INTO notification SET ?', notification, (err, result) => {
             if (err) return reject(err);
             const insertId = (result as any).insertId;
             getNotificationById(insertId).then(resolve).catch(reject);
@@ -100,7 +100,7 @@ export const sendTripReminder = async (
 export const updateNotification = (id: number, body: Partial<Notification>): Promise<Notification> => {
     return new Promise((resolve, reject) => {
         db.query(
-            'UPDATE Notification SET ? WHERE id_notification = ?',
+            'UPDATE notification SET ? WHERE id_notification = ?',
             [body, id],
             (err) => {
                 if (err) return reject(err);
@@ -113,7 +113,7 @@ export const updateNotification = (id: number, body: Partial<Notification>): Pro
 export const deleteNotification = (id: number): Promise<void> => {
     return new Promise((resolve, reject) => {
         db.query(
-            'DELETE FROM Notification WHERE id_notification = ?',
+            'DELETE FROM notification WHERE id_notification = ?',
             [id],
             (err) => {
                 if (err) return reject(err);

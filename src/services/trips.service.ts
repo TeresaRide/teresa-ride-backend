@@ -3,7 +3,7 @@ import { Trip } from '../models/trip.model';
 
 export const getAllTrips = (): Promise<Trip[]> => {
   return new Promise((resolve, reject) => {
-    db.query('SELECT * FROM Trip', (err, results) => {
+    db.query('SELECT * FROM trip', (err, results) => {
       if (err) reject(err);
       else resolve(results as Trip[]);
     });
@@ -12,7 +12,7 @@ export const getAllTrips = (): Promise<Trip[]> => {
 
 export const getTripById = (id: string): Promise<Trip> => {
   return new Promise((resolve, reject) => {
-    db.query('SELECT * FROM Trip WHERE id_trip = ?', [id], (err, results) => {
+    db.query('SELECT * FROM trip WHERE id_trip = ?', [id], (err, results) => {
       if (err) reject(err);
       else {
         const trips = results as Trip[];
@@ -26,7 +26,7 @@ export const getTripById = (id: string): Promise<Trip> => {
 
 export const createTrip = (trip: Trip): Promise<Trip> => {
   return new Promise((resolve, reject) => {
-    db.query('INSERT INTO Trip SET ?', trip, (err, result) => {
+    db.query('INSERT INTO trip SET ?', trip, (err, result) => {
       if (err) reject(err);
       else {
         const insertId = (result as any).insertId;
@@ -40,7 +40,7 @@ export const createTrip = (trip: Trip): Promise<Trip> => {
 
 export const updateTrip = (id: string, trip: Partial<Trip>): Promise<Trip> => {
   return new Promise((resolve, reject) => {
-    db.query('UPDATE Trip SET ? WHERE id_trip = ?', [trip, id], (err, result) => {
+    db.query('UPDATE trip SET ? WHERE id_trip = ?', [trip, id], (err, result) => {
       if (err) reject(err);
       else if ((result as any).affectedRows === 0)
         reject(new Error('Trip not found'));
@@ -55,7 +55,7 @@ export const updateTrip = (id: string, trip: Partial<Trip>): Promise<Trip> => {
 
 export const deleteTrip = (id: string): Promise<void> => {
   return new Promise((resolve, reject) => {
-    db.query('DELETE FROM Trip WHERE id_trip = ?', [id], (err, result) => {
+    db.query('DELETE FROM trip WHERE id_trip = ?', [id], (err, result) => {
       if (err) reject(err);
       else if ((result as any).affectedRows === 0)
         reject(new Error('Trip not found'));

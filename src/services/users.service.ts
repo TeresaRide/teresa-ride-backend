@@ -3,7 +3,7 @@ import { User } from "../models/user.model";
 
 export const getAllUsers = (): Promise<User[]> => {
   return new Promise((resolve, reject) => {
-    db.query("SELECT  id_document, name, email, password, nationality, role, image_path FROM User", (err, results) => {
+    db.query("SELECT  id_document, name, email, password, nationality, role, image_path FROM user", (err, results) => {
       if (err) reject(err);
       else resolve(results as User[]);
     });
@@ -13,7 +13,7 @@ export const getAllUsers = (): Promise<User[]> => {
 export const getUserById = (id_document: string): Promise<User | null> => {
   return new Promise((resolve, reject) => {
     db.query(
-      "SELECT id_document, name, email, password, nationality, role, image_path FROM User WHERE id_document = ?",
+      "SELECT id_document, name, email, password, nationality, role, image_path FROM user WHERE id_document = ?",
       [id_document],
       (err, results) => {
         if (err) return reject(err);
@@ -29,7 +29,7 @@ export const getUserById = (id_document: string): Promise<User | null> => {
 export const getUserByEmail = (email: string): Promise<User | null> => {
   return new Promise((resolve, reject) => {
     db.query(
-      "SELECT id_document, name, email, password, nationality, role, image_path FROM User WHERE email = ?",
+      "SELECT id_document, name, email, password, nationality, role, image_path FROM user WHERE email = ?",
       [email],
       (err, results) => {
         if (err) return reject(err);
@@ -44,7 +44,7 @@ export const getUserByEmail = (email: string): Promise<User | null> => {
 
 export const createUser = (user: User): Promise<User> => {
   return new Promise((resolve, reject) => {
-    db.query("INSERT INTO User SET ?", user, (err, result) => {
+    db.query("INSERT INTO user SET ?", user, (err, result) => {
       if (err) {
         reject(err);
       } else {
@@ -56,7 +56,7 @@ export const createUser = (user: User): Promise<User> => {
 
 export const updateUser = (id_document: string, user: Partial<User>): Promise<User | null> => {
   return new Promise((resolve, reject) => {
-    db.query("UPDATE User SET ? WHERE id_document = ?", [user, id_document], (err) => {
+    db.query("UPDATE user SET ? WHERE id_document = ?", [user, id_document], (err) => {
       if (err) return reject(err);
       getUserById(id_document)
         .then(resolve)
@@ -67,7 +67,7 @@ export const updateUser = (id_document: string, user: Partial<User>): Promise<Us
 
 export const deleteUser = (id_document: string): Promise<void> => {
   return new Promise((resolve, reject) => {
-    db.query("DELETE FROM User WHERE id_document = ?", [id_document], (err, result) => {
+    db.query("DELETE FROM user WHERE id_document = ?", [id_document], (err, result) => {
       if (err) reject(err);
       else if ((result as any).affectedRows === 0)
         reject(new Error("User not found"));

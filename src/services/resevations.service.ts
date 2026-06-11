@@ -112,7 +112,7 @@ export const getReservationWithoutReview = (id_document: string): Promise<Reserv
 export const getReservationById = (id_reservation: number): Promise<Reservation | null> => {
   return new Promise((resolve, reject) => {
     db.query<RowDataPacket[]>(
-      'SELECT * FROM `Reservation` WHERE id_reservation = ? LIMIT 1',
+      'SELECT * FROM `reservation` WHERE id_reservation = ? LIMIT 1',
       [id_reservation],
       (err, rows) => {
         if (err) {
