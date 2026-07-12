@@ -46,8 +46,9 @@ export const create = async (req: Request, res: Response) => {
 
         const trip = await tripService.createTrip(newTrip);
         res.status(201).json(trip);
-    } catch (error) {
-        res.status(400).json({ message: 'Error creating trip', error });
+    } catch (error: any) {
+        console.error('Error creating trip:', error);
+        res.status(400).json({ message: 'Error creating trip', error: error?.message || String(error) });
     }
 };
 
