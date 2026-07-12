@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import * as notificationService from '../services/notification.service';
+import { uploadToCloudinary } from '../utils/cloudinary';
 
 export const getAllNotifications = async (req: Request, res: Response) => {
     try {
@@ -24,7 +25,8 @@ export const createNotification = async (req: Request, res: Response) => {
     try {
         let notificationData = req.body;
         if (req.file) {
-            notificationData.attachment_path = req.file.filename;
+            const uploaded = await uploadToCloudinary(req.file.buffer, 'teresaride/notifications', 'raw');
+            notificationData.attachment_path = uploaded.url;
         }
         const notification = await notificationService.createNotification(notificationData);
         res.status(201).json(notification);
@@ -37,7 +39,8 @@ export const updateNotification = async (req: Request, res: Response) => {
     try {
         let notificationData = req.body;
         if (req.file) {
-            notificationData.attachment_path = req.file.filename;
+            const uploaded = await uploadToCloudinary(req.file.buffer, 'teresaride/notifications', 'raw');
+            notificationData.attachment_path = uploaded.url;
         }
         const { id } = req.params;
         const notification = await notificationService.updateNotification(Number(id), notificationData);
@@ -60,7 +63,9 @@ export const deleteNotification = async (req: Request, res: Response) => {
 export const sendPaymentConfirmation = async (req: Request, res: Response) => {
     try {
         const { email, paymentDetails, email_subject, description, shipping_date} = req.body;
-        const attachment_path = req.file ? req.file.filename : undefined;
+        const attachment_path = req.file
+            ? (await uploadToCloudinary(req.file.buffer, 'teresaride/notifications', 'raw')).url
+            : undefined;
 
         let paymentObj = paymentDetails;
         if (typeof paymentDetails === 'string') {
@@ -88,7 +93,7 @@ export const sendPaymentConfirmation = async (req: Request, res: Response) => {
             notification.email_subject,
             notification.description,
             attachment_path
-                ? [{ filename: attachment_path, path: `uploads/notifications/${attachment_path}` }]
+                ? [{ filename: attachment_path.split('/').pop() || 'attachment.pdf', path: attachment_path }]
                 : undefined
         );
 
@@ -102,7 +107,9 @@ export const sendPaymentConfirmation = async (req: Request, res: Response) => {
 export const sendTripReminder = async (req: Request, res: Response) => {
     try {
         const { email, tripDetails, email_subject, description, shipping_date } = req.body;
-        const attachment_path = req.file ? req.file.filename : undefined;
+        const attachment_path = req.file
+            ? (await uploadToCloudinary(req.file.buffer, 'teresaride/notifications', 'raw')).url
+            : undefined;
 
         let tripObj = tripDetails;
         if (typeof tripDetails === 'string') {
@@ -131,7 +138,7 @@ export const sendTripReminder = async (req: Request, res: Response) => {
             notification.email_subject,
             notification.description,
             attachment_path
-                ? [{ filename: attachment_path, path: `uploads/notifications/${attachment_path}` }]
+                ? [{ filename: attachment_path.split('/').pop() || 'attachment.pdf', path: attachment_path }]
                 : undefined
         );
         return res.status(200).json({

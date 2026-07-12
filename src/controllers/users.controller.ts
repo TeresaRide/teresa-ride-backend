@@ -4,6 +4,7 @@ import * as userService from "../services/users.service";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { Request as ExRequest } from "express";
+import { uploadToCloudinary } from "../utils/cloudinary";
 
 
 export interface RequestWithAuth extends ExRequest {
@@ -57,7 +58,8 @@ export const update = async (req: RequestWithAuth, res: express.Response) => {
     }
 
     if (req.file) {
-      updateData.image_path = req.file.filename;
+      const uploaded = await uploadToCloudinary(req.file.buffer, 'teresaride/users');
+      updateData.image_path = uploaded.url;
     }
 
     const user = await userService.updateUser(id, updateData);
@@ -104,7 +106,8 @@ export const registerUser = async (req: RequestWithAuth, res: express.Response) 
     let userRole: "user" | "admin" = "user";
     let image_path: string | undefined = undefined;
     if (req.file) {
-      image_path = req.file.filename;
+      const uploaded = await uploadToCloudinary(req.file.buffer, 'teresaride/users');
+      image_path = uploaded.url;
     }
 
     const newUser: User = {
@@ -153,7 +156,8 @@ export const registerUserAdmin = async (req: RequestWithAuth, res: express.Respo
 
     let image_path: string | undefined = undefined;
     if (req.file) {
-      image_path = req.file.filename;
+      const uploaded = await uploadToCloudinary(req.file.buffer, 'teresaride/users');
+      image_path = uploaded.url;
     }
 
     const newUser: User = {
@@ -163,7 +167,7 @@ export const registerUserAdmin = async (req: RequestWithAuth, res: express.Respo
       password: hashedPassword,
       nationality,
       role: userRole,
-      image_path, 
+      image_path,
     };
 
     const savedUser = await userService.createUser(newUser);
@@ -217,7 +221,8 @@ export const updateProfile = async (
     const { name, nationality } = req.body;
     let image_path: string | undefined = undefined;
     if (req.file) {
-      image_path = req.file.filename;
+      const uploaded = await uploadToCloudinary(req.file.buffer, 'teresaride/users');
+      image_path = uploaded.url;
     }
     const updateData: any = { name, nationality };
     if (image_path) updateData.image_path = image_path;

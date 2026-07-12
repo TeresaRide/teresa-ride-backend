@@ -1,8 +1,7 @@
 import { Request, Response } from "express";
 import { Vehicle } from "../models/vehicle.model";
 import * as vehicleService from "../services/vehicles.service";
-import fs from 'fs';
-import path from 'path';
+import { uploadToCloudinary, deleteFromCloudinary } from "../utils/cloudinary";
 
 export const getAll = async (req: Request, res: Response) => {
     try {
@@ -26,7 +25,11 @@ export const getById = async (req: Request, res: Response) => {
 export const create = async (req: Request, res: Response) => {
     try {
         const file = req.file;
-        const imagePath = file ? `/uploads/vehicles/${file.filename}` : undefined;
+        let imagePath: string | undefined;
+        if (file) {
+            const uploaded = await uploadToCloudinary(file.buffer, 'teresaride/vehicles');
+            imagePath = uploaded.url;
+        }
 
         const payload = req.body;
         const newVehicle: Vehicle = {
@@ -52,7 +55,11 @@ export const update = async (req: Request, res: Response) => {
     try {
         const { id } = req.params;
         const file = req.file;
-        const imagePath = file ? `/uploads/vehicles/${file.filename}` : undefined;
+        let imagePath: string | undefined;
+        if (file) {
+            const uploaded = await uploadToCloudinary(file.buffer, 'teresaride/vehicles');
+            imagePath = uploaded.url;
+        }
 
         const payload = req.body;
         const updateData: Partial<Vehicle> = {
@@ -79,11 +86,7 @@ export const remove = async (req: Request, res: Response) => {
         const vehicle = await vehicleService.getVehicleById(id);
         await vehicleService.deleteVehicle(id);
         if (vehicle.image) {
-            const rel = vehicle.image.replace(/^\/+/, '');
-            const absolute = path.join(__dirname, '..', '..', rel);
-            fs.promises.unlink(absolute).catch((err: any) => {
-                if (err?.code !== 'ENOENT') console.error('No se pudo borrar imagen:', err);
-            });
+            await deleteFromCloudinary(vehicle.image);
         }
         res.status(204).send();
     } catch (error) {

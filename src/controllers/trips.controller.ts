@@ -1,8 +1,7 @@
 import { Request, Response } from "express";
 import { Trip } from "../models/trip.model";
 import * as tripService from "../services/trips.service";
-import fs from 'fs';
-import path from 'path';
+import { uploadToCloudinary, deleteFromCloudinary } from "../utils/cloudinary";
 
 export const getAll = async (req: Request, res: Response) => {
     try {
@@ -25,8 +24,12 @@ export const getById = async (req: Request, res: Response) => {
 
 export const create = async (req: Request, res: Response) => {
     try {
-        const file = req.file; 
-        const imagePath = file ? `/uploads/trips/${file.filename}` : '';
+        const file = req.file;
+        let imagePath = '';
+        if (file) {
+            const uploaded = await uploadToCloudinary(file.buffer, 'teresaride/trips');
+            imagePath = uploaded.url;
+        }
 
         const payload = req.body;
         const newTrip: Trip = {
@@ -52,7 +55,11 @@ export const update = async (req: Request, res: Response) => {
     try {
         const { id } = req.params;
         const file = req.file;
-        const imagePath = file ? `/uploads/trips/${file.filename}` : undefined;
+        let imagePath: string | undefined;
+        if (file) {
+            const uploaded = await uploadToCloudinary(file.buffer, 'teresaride/trips');
+            imagePath = uploaded.url;
+        }
 
         const payload = req.body;
         const updateData: Partial<Trip> = {
@@ -79,13 +86,8 @@ export const remove = async (req: Request, res: Response) => {
         const trip = await tripService.getTripById(String(id));
         await tripService.deleteTrip(String(id));
 
-        // JSKJASJAXNKSJXNA Pruebas mas pruebas gagag shshhss
         if (trip.image) {
-            const rel = trip.image.replace(/^\/+/, '');
-            const absolute = path.join(__dirname, '..', '..', rel);
-            fs.promises.unlink(absolute).catch(err => {
-                if (err?.code !== 'ENOENT') console.error('No se po borrar imagen:', err);
-            });
+            await deleteFromCloudinary(trip.image);
         }
 
         res.status(204).send();

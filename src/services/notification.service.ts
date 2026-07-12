@@ -63,8 +63,8 @@ const buildAttachments = (attachmentPath?: string) => {
     if (!attachmentPath) return undefined;
     return [
         {
-            filename: attachmentPath,
-            path: `uploads/notifications/${attachmentPath}`
+            filename: attachmentPath.split('/').pop() || 'attachment.pdf',
+            path: attachmentPath
         }
     ];
 };
