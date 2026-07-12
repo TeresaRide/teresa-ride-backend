@@ -46,8 +46,9 @@ export const create = async (req: Request, res: Response) => {
 
         const vehicle = await vehicleService.createVehicle(newVehicle);
         res.status(201).json(vehicle);
-    } catch (error) {
-        res.status(400).json({ message: 'Error creating vehicle', error });
+    } catch (error: any) {
+        console.error('Error creating vehicle:', error);
+        res.status(400).json({ message: 'Error creating vehicle', error: error?.message || String(error) });
     }
 };
 
@@ -75,8 +76,9 @@ export const update = async (req: Request, res: Response) => {
 
         const vehicle = await vehicleService.updateVehicle(id, updateData);
         res.json(vehicle);
-    } catch (error) {
-        res.status(404).json({ message: 'Vehicle not found or error updating', error });
+    } catch (error: any) {
+        console.error('Error updating vehicle:', error);
+        res.status(400).json({ message: 'Vehicle not found or error updating', error: error?.message || String(error) });
     }
 };
 
